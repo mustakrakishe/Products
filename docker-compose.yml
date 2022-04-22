@@ -1,6 +1,24 @@
 version: '3.9'
 
 services:
+      
+  mysql:
+    image: mysql:8.0.28
+    environment:
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_PASSWORD
+      MYSQL_DATABASE: $MYSQL_DATABASE
+    ports:
+      - 3306:$MYSQL_PORT
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: mysql -u $$MYSQL_USER -p$$MYSQL_PASSWORD $$MYSQL_DATABASE
+      interval: 3s
+      timeout: 3s
+      retries: 5
+      start_period: 5m
 
   composer:
     image: composer:2.3.5
@@ -11,6 +29,8 @@ services:
 
   php:
     depends_on:
+      mysql:
+        condition: service_healthy
       composer:
         condition: service_completed_successfully
     build:
@@ -30,3 +50,6 @@ services:
     volumes:
       - ./:/var/www/html
       - ./docker/nginx/conf.d:/etc/nginx/conf.d
+
+volumes:
+  db-data:
