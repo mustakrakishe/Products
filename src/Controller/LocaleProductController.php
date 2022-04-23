@@ -10,7 +10,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class LocaleProductController extends AbstractController
 {
-    #[Route('/api/{localeIso}/products', name: 'api_locale_products_get_collection')]
+    #[Route(
+        '/api/{localeIso}/products',
+        name: 'api_locale_products_get_collection',
+        methods: ['GET']
+    )]
     public function index(ManagerRegistry $doctrine, string $localeIso): Response
     {
         return $this->json(
@@ -19,9 +23,12 @@ class LocaleProductController extends AbstractController
                 ->findByLocaleIso($localeIso)
         );
     }
-
     
-    #[Route('/api/{localeIso}/products/{productId}', name: 'api_locale_products_get_item')]
+    #[Route(
+        '/api/{localeIso}/products/{productId}',
+        name: 'api_locale_products_get_item',
+        methods: ['GET']
+    )]
     public function show(ManagerRegistry $doctrine, string $localeIso, int $productId): Response
     {
         return $this->json(
