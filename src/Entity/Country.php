@@ -23,9 +23,13 @@ class Country
     #[ORM\OneToMany(mappedBy: 'country', targetEntity: Locale::class, orphanRemoval: true)]
     private $locales;
 
+    #[ORM\OneToMany(mappedBy: 'country', targetEntity: Vat::class, orphanRemoval: true)]
+    private $vats;
+
     public function __construct()
     {
         $this->locales = new ArrayCollection();
+        $this->vats = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -69,6 +73,36 @@ class Country
             // set the owning side to null (unless already changed)
             if ($locale->getCountry() === $this) {
                 $locale->setCountry(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Vat>
+     */
+    public function getVats(): Collection
+    {
+        return $this->vats;
+    }
+
+    public function addVat(Vat $vat): self
+    {
+        if (!$this->vats->contains($vat)) {
+            $this->vats[] = $vat;
+            $vat->setCountry($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVat(Vat $vat): self
+    {
+        if ($this->vats->removeElement($vat)) {
+            // set the owning side to null (unless already changed)
+            if ($vat->getCountry() === $this) {
+                $vat->setCountry(null);
             }
         }
 

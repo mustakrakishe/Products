@@ -75,4 +75,37 @@ class ProductRepository extends ServiceEntityRepository
         ;
     }
     */
+    
+    public function findOneByIdAndLocaleIso(int $productId, string $localeIso)
+    {
+        return $this
+            ->findByLocaleIsoQueryBuilder($localeIso)
+            ->andWhere('vat.product = :product_id')
+            ->setParameter('product_id', $productId)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+    
+    public function findByLocaleIso(string $localeIso)
+    {
+        return $this
+            ->findByLocaleIsoQueryBuilder($localeIso)
+            ->getQuery()
+            ->execute();
+    }
+
+    private function findByLocaleIsoQueryBuilder(string $localeIso):  \Doctrine\ORM\QueryBuilder
+    {
+        return $this->createQueryBuilder('product')
+            ->select(
+                'product.id',
+                'product.name',
+                'product.description', 
+                'product.price*(1 + vat.value/100) as price'
+            )
+            ->innerJoin('App\Entity\Vat', 'vat', 'WITH', 'vat.product = product')
+            ->innerJoin('App\Entity\Locale', 'locale', 'WITH', 'vat.country = locale.country')
+            ->where('locale.iso = :locale_iso')
+            ->setParameter('locale_iso', $localeIso);
+    }
 }
