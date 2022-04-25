@@ -1,5 +1,7 @@
 FROM php:8.1-fpm-alpine
 
+COPY ./docker/php/entrypoint.sh /usr/local/bin/entrypoint.sh
+
 WORKDIR /var/www/html
 
 RUN apk --no-cache add autoconf g++ make\
@@ -12,6 +14,9 @@ EXPOSE 9000
 
 HEALTHCHECK --interval=3s \
     --timeout=3s \
-    --start-period=30s \
+    --start-period=2m \
     --retries=3 \
     CMD netstat -an | grep :9000
+
+ENTRYPOINT [ "entrypoint.sh" ]
+CMD [ "php-fpm" ]
